@@ -1,0 +1,51 @@
+{
+  "name": "lumiko",
+  "version": "1.0.0",
+  "description": "Auto-generate documentation from your codebase using Claude",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "lumiko": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "lint": "eslint src/",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "documentation",
+    "generator",
+    "ai",
+    "claude",
+    "developer-tools"
+  ],
+  "author": "Mirako Studios",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mirako-studio/lumiko"
+  },
+  "homepage": "https://mirako.computer",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "glob": "^11.0.1",
+    "js-yaml": "^4.1.0",
+    "ora": "^8.2.0",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.0.0",
+    "@types/prompts": "^2.4.9",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,49 @@
+# Lumiko Configuration
+# Docs: https://github.com/mirako-dev/lumiko
+version: 1
+
+# Project info (auto-detected if not specified)
+project:
+  name: "my-project"
+  description: ""
+
+# What to scan
+include:
+  - "src/**/*"
+  - "lib/**/*"
+  - "*.ts"
+  - "*.py"
+  - "*.js"
+
+# What to ignore
+exclude:
+  - "node_modules/**"
+  - "dist/**"
+  - "build/**"
+  - "**/*.test.ts"
+  - "**/*.spec.ts"
+  - ".git/**"
+  - "*.lock"
+  - "*.log"
+
+# Output configuration
+output:
+  directory: "docs"
+  formats:
+    - markdown
+    - context
+
+# Documentation options
+docs:
+  readme: true
+  architecture: true
+  api: true
+  diagrams: true
+
+# Claude settings
+claude:
+  # "claude-code" = uses Claude Code CLI (your subscription, no API key needed)
+  # "api"         = uses Anthropic API directly (requires ANTHROPIC_API_KEY)
+  backend: "claude-code"
+  model: "claude-sonnet-4-20250514"
+  maxTokens: 8192
