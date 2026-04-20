@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { init } from './commands/init.js';
 import { generate } from './commands/generate.js';
+import { preset } from './commands/preset.js';
 
 const program = new Command();
 
@@ -25,6 +26,15 @@ program
     'Backend to use: "claude-code" (default, uses subscription) or "api" (requires ANTHROPIC_API_KEY)',
   )
   .option('--verbose', 'Show raw Claude output for debugging')
+  .option('--no-presets', 'Skip auto-running presets listed in config')
   .action(generate);
+
+program
+  .command('preset [targets...]')
+  .description(
+    'Generate tool-specific files (CLAUDE.md, .cursorrules, AGENTS.md, etc.) from the .context/ bundle. Run `lumiko preset list` to see options.',
+  )
+  .option('--dry-run', 'Show what would be written without creating files')
+  .action(preset);
 
 program.parse();

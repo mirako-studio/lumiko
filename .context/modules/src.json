@@ -1,0 +1,17 @@
+{
+  "path": "src/",
+  "purpose": "CLI entry point. Wires commander to the init and generate subcommands; contains no business logic.",
+  "files": [
+    {
+      "path": "src/index.ts",
+      "purpose": "Defines the `lumiko` CLI with commander and registers the `init` and `generate` commands.",
+      "exports": [],
+      "dependencies": [
+        "commander",
+        "./commands/init.js",
+        "./commands/generate.js"
+      ],
+      "keyFunctions": []
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+# Lumiko Configuration
+# Docs: https://github.com/mirako-dev/lumiko
+
+version: 1
+project:
+  name: lumiko
+  description: ''
+include:
+  - src/**/*
+  - lib/**/*
+  - '*.ts'
+  - '*.js'
+  - '*.py'
+exclude:
+  - node_modules/**
+  - dist/**
+  - build/**
+  - .git/**
+  - '*.lock'
+  - '*.log'
+output:
+  directory: docs
+  contextDirectory: .context
+  formats:
+    - markdown
+    - context
+docs:
+  readme: true
+  architecture: true
+  api: true
+  diagrams: true
+claude:
+  backend: claude-code
+  model: claude-sonnet-4-20250514
+  maxTokens: 8192
+chunking:
+  enabled: auto
+  maxTokensPerChunk: 80000
+  threshold: 100000
+presets:
+  - claude-code
+  - cursor
+  - agents

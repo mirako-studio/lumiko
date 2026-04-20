@@ -1,0 +1,72 @@
+{
+  "path": "src/commands/",
+  "purpose": "CLI subcommand handlers. Each file exports the async function invoked by commander for one subcommand.",
+  "files": [
+    {
+      "path": "src/commands/generate.ts",
+      "purpose": "Orchestrates the full generate pipeline: load config, scan project, plan chunks, create backend client, run standard or chunked pipeline, and write outputs.",
+      "exports": [
+        "generate"
+      ],
+      "dependencies": [
+        "ora",
+        "chalk",
+        "prompts",
+        "../core/config.js",
+        "../core/scanner.js",
+        "../core/claude.js",
+        "../core/output.js",
+        "../core/chunker.js",
+        "../types/index.js"
+      ],
+      "keyFunctions": [
+        {
+          "name": "generate",
+          "signature": "generate(options: GenerateOptions): Promise<void>",
+          "purpose": "Entry point for `lumiko generate`; runs the full pipeline and writes docs + .context/ bundle."
+        },
+        {
+          "name": "runStandardPipeline",
+          "signature": "runStandardPipeline(client: DocGenerator, files: ScannedFile[], config: LumikoConfig, options: GenerateOptions, spinner: Ora): Promise<GeneratedDocs>",
+          "purpose": "Single-shot pipeline: calls generateDocs and generateContext directly on all files."
+        },
+        {
+          "name": "runChunkedPipeline",
+          "signature": "runChunkedPipeline(client: DocGenerator, files: ScannedFile[], chunkPlan: ChunkPlan, config: LumikoConfig, options: GenerateOptions, spinner: Ora): Promise<GeneratedDocs>",
+          "purpose": "Map-reduce pipeline: analyzes each chunk then synthesizes docs and context bundle from analyses."
+        },
+        {
+          "name": "estimateTokens",
+          "signature": "estimateTokens(files: ScannedFile[]): number",
+          "purpose": "Rough token estimate (chars/4 + overhead) used for cost/plan display."
+        },
+        {
+          "name": "estimateCost",
+          "signature": "estimateCost(tokens: number): number",
+          "purpose": "Approximate USD cost for the API backend using Sonnet pricing."
+        }
+      ]
+    },
+    {
+      "path": "src/commands/init.ts",
+      "purpose": "Creates `.lumiko/config.yaml` and the `docs/` directory for a new project.",
+      "exports": [
+        "init"
+      ],
+      "dependencies": [
+        "path",
+        "fs/promises",
+        "ora",
+        "chalk",
+        "../core/config.js"
+      ],
+      "keyFunctions": [
+        {
+          "name": "init",
+          "signature": "init(options: InitOptions): Promise<void>",
+          "purpose": "Scaffolds Lumiko config; exits with a hint if config already exists unless --force is passed."
+        }
+      ]
+    }
+  ]
+}

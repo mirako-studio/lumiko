@@ -1,0 +1,28 @@
+{
+  "path": "src/types/",
+  "purpose": "Single barrel of shared TypeScript types used across CLI, core pipeline, and backend clients. No runtime code.",
+  "files": [
+    {
+      "path": "src/types/index.ts",
+      "purpose": "Defines LumikoConfig, ScannedFile, GeneratedDocs, ChunkAnalysis, ContextBundle and related schemas, plus the DocGenerator interface that both backends implement.",
+      "exports": [
+        "Backend",
+        "ChunkingConfig",
+        "LumikoConfig",
+        "ScannedFile",
+        "GeneratedDocs",
+        "ContextBundleEntry",
+        "ContextBundle",
+        "ContextOverview",
+        "ContextArchitecture",
+        "ContextCommands",
+        "ContextModule",
+        "ContextManifest",
+        "ChunkAnalysis",
+        "DocGenerator"
+      ],
+      "dependencies": [],
+      "keyFunctions": []
+    }
+  ]
+}

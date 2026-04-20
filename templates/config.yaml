@@ -28,10 +28,14 @@ exclude:
 
 # Output configuration
 output:
+  # Directory for human-facing markdown docs (README.md, architecture.md, api.md)
   directory: "docs"
+  # Directory for the AI-readable .context/ bundle — structured, multi-file
+  # context consumed by coding agents (Claude Code, Cursor, etc.)
+  contextDirectory: ".context"
   formats:
-    - markdown
-    - context
+    - markdown  # README.md, architecture.md, api.md (for humans)
+    - context   # .context/ bundle (for AI agents)
 
 # Documentation options
 docs:
@@ -47,3 +51,31 @@ claude:
   backend: "claude-code"
   model: "claude-sonnet-4-20250514"
   maxTokens: 8192
+
+# Chunking — for large codebases that exceed Claude's context window
+# When enabled, files are split into chunks, analyzed independently,
+# then synthesized into unified documentation.
+chunking:
+  # "auto" = chunk only when estimated tokens exceed the threshold
+  # true   = always chunk (useful for very large projects)
+  # false  = never chunk (single-shot generation)
+  enabled: "auto"
+  # Max tokens per chunk (default: 80000)
+  maxTokensPerChunk: 80000
+  # Token threshold to trigger auto-chunking (default: 100000)
+  threshold: 100000
+
+# Tooling presets — transform the .context/ bundle into tool-specific files.
+# These run automatically after `lumiko generate`. Run on demand with
+# `lumiko preset <name>` or `lumiko preset all`.
+#
+# Available presets:
+#   - claude-code   → CLAUDE.md                         (Anthropic Claude Code)
+#   - cursor        → .cursor/rules/project.mdc         (Cursor)
+#   - copilot       → .github/copilot-instructions.md   (GitHub Copilot)
+#   - windsurf      → .windsurfrules                    (Codeium Windsurf)
+#   - agents        → AGENTS.md                         (cross-vendor standard)
+presets: []
+  # - claude-code
+  # - cursor
+  # - agents

@@ -1,0 +1,15 @@
+{
+  "name": "lumiko",
+  "summary": "Lumiko is a CLI tool that auto-generates documentation from a codebase by delegating analysis to Claude. It scans source files, optionally chunks them when the codebase is large, sends them to Claude (via the Claude Code CLI or Anthropic API), and writes both human-facing markdown docs (README.md, architecture.md, api.md) and a machine-readable .context/ bundle for AI coding agents.",
+  "purpose": "Developers who want up-to-date documentation and an AI-readable project context bundle without writing it by hand.",
+  "stack": {
+    "language": "typescript",
+    "runtime": "node-18",
+    "framework": null,
+    "packageManager": "npm",
+    "buildTool": "tsup"
+  },
+  "entryPoints": [
+    "src/index.ts"
+  ]
+}

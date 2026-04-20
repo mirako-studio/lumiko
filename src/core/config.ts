@@ -13,6 +13,7 @@ const DEFAULT_CONFIG: LumikoConfig = {
   exclude: ['node_modules/**', 'dist/**', 'build/**', '.git/**', '*.lock', '*.log'],
   output: {
     directory: 'docs',
+    contextDirectory: '.context',
     formats: ['markdown', 'context'],
   },
   docs: {
@@ -26,6 +27,12 @@ const DEFAULT_CONFIG: LumikoConfig = {
     model: 'claude-sonnet-4-20250514',
     maxTokens: 8192,
   },
+  chunking: {
+    enabled: 'auto',
+    maxTokensPerChunk: 80_000,
+    threshold: 100_000,
+  },
+  presets: [],
 };
 
 export async function loadConfig(projectPath: string): Promise<LumikoConfig> {
@@ -36,7 +43,10 @@ export async function loadConfig(projectPath: string): Promise<LumikoConfig> {
     const userConfig = yaml.load(content) as Partial<LumikoConfig>;
 
     // Deep merge with defaults
-    return deepMerge(DEFAULT_CONFIG, userConfig) as LumikoConfig;
+    return deepMerge(
+      DEFAULT_CONFIG as unknown as Record<string, unknown>,
+      userConfig as unknown as Record<string, unknown>,
+    ) as unknown as LumikoConfig;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       throw new Error('No config found. Run "lumiko init" first.');

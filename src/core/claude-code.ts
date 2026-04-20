@@ -2,14 +2,27 @@ import { execFile, spawn } from 'child_process';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
-import type { LumikoConfig, ScannedFile, GeneratedDocs, DocGenerator } from '../types/index.js';
+import type { LumikoConfig, ScannedFile, GeneratedDocs, DocGenerator, ChunkAnalysis, ContextBundle } from '../types/index.js';
 import {
   buildCodebaseContext,
   buildClaudeCodeInstruction,
   buildContextPrompt,
   buildContextInstruction,
+  buildChunkAnalysisPrompt,
+  buildChunkAnalysisInstruction,
+  buildSynthesisPrompt,
+  buildSynthesisInstruction,
+  buildContextSynthesisPrompt,
+  buildContextSynthesisInstruction,
 } from './prompts.js';
-import { parseGeneratedResponse, isDocsEmpty } from './parse.js';
+import {
+  parseGeneratedResponse,
+  isDocsEmpty,
+  parseChunkAnalysis,
+  isChunkAnalysisEmpty,
+  parseContextBundle,
+  isBundleEmpty,
+} from './parse.js';
 
 export class ClaudeCodeClient implements DocGenerator {
   private config: LumikoConfig;
@@ -83,48 +96,195 @@ export class ClaudeCodeClient implements DocGenerator {
     return docs;
   }
 
-  async generateContext(files: ScannedFile[], projectName: string): Promise<Record<string, unknown>> {
+  async generateContext(files: ScannedFile[], projectName: string): Promise<ContextBundle> {
     const contextPrompt = buildContextPrompt(files, projectName, this.config);
     const instruction = buildContextInstruction();
 
     if (this.verbose) {
-      console.log(`\n[verbose] Context instruction (${instruction.length} chars)`);
-      console.log(`[verbose] Context prompt size: ${formatBytes(contextPrompt.length)}`);
+      console.log(`\n[verbose] Context bundle instruction (${instruction.length} chars)`);
+      console.log(`[verbose] Context bundle prompt size: ${formatBytes(contextPrompt.length)}`);
     }
 
     const rawOutput = await this.runClaude(instruction, contextPrompt);
-    const cleaned = stripAnsi(rawOutput).trim();
+    const cleaned = stripAnsi(rawOutput);
 
     if (this.verbose) {
-      console.log('\n--- RAW CONTEXT OUTPUT ---');
-      console.log(cleaned.slice(0, 2000));
-      if (cleaned.length > 2000) {
-        console.log(`... (${cleaned.length - 2000} more chars)`);
+      console.log('\n--- RAW CONTEXT BUNDLE OUTPUT ---');
+      console.log(cleaned.slice(0, 3000));
+      if (cleaned.length > 3000) {
+        console.log(`... (${cleaned.length - 3000} more chars)`);
       }
       console.log('--- END RAW OUTPUT ---\n');
     }
 
-    // Strip markdown code fences if Claude wrapped the JSON anyway
-    let jsonStr = cleaned;
-    const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (fenceMatch) {
-      jsonStr = fenceMatch[1].trim();
-    }
+    const { bundle, invalidEntries } = parseContextBundle(cleaned);
 
-    try {
-      return JSON.parse(jsonStr);
-    } catch {
-      // Save the raw output for debugging
+    if (isBundleEmpty(bundle)) {
       const debugDir = path.join(process.cwd(), '.lumiko');
       await fs.mkdir(debugDir, { recursive: true });
-      await fs.writeFile(path.join(debugDir, 'last-context-response.txt'), cleaned);
+      await fs.writeFile(path.join(debugDir, 'last-context-response.txt'), cleaned || '(empty response)');
 
       throw new Error(
-        'Failed to parse context.json — Claude did not return valid JSON.\n\n' +
+        'Failed to parse .context/ bundle — Claude did not return any ---FILE:<path>--- entries.\n\n' +
           `Raw response saved to: .lumiko/last-context-response.txt (${formatBytes(cleaned.length)})\n` +
           'Try running again, or use: lumiko generate --verbose',
       );
     }
+
+    if (invalidEntries.length > 0 && this.verbose) {
+      console.log(`[verbose] ${invalidEntries.length} invalid entries skipped:`);
+      for (const e of invalidEntries) {
+        console.log(`  - ${e.path}: ${e.error}`);
+      }
+    }
+
+    return bundle;
+  }
+
+  async analyzeChunk(
+    files: ScannedFile[],
+    chunkLabel: string,
+    projectName: string,
+  ): Promise<ChunkAnalysis> {
+    const prompt = buildChunkAnalysisPrompt(files, chunkLabel, projectName);
+    const instruction = buildChunkAnalysisInstruction();
+
+    if (this.verbose) {
+      console.log(`\n[verbose] Chunk "${chunkLabel}" — ${files.length} files, prompt ${formatBytes(prompt.length)}`);
+    }
+
+    const rawOutput = await this.runClaude(instruction, prompt);
+    const cleaned = stripAnsi(rawOutput);
+
+    if (this.verbose) {
+      console.log(`\n--- RAW CHUNK ANALYSIS: ${chunkLabel} ---`);
+      console.log(cleaned.slice(0, 2000));
+      if (cleaned.length > 2000) {
+        console.log(`... (${cleaned.length - 2000} more chars)`);
+      }
+      console.log('--- END CHUNK ANALYSIS ---\n');
+    }
+
+    const filePaths = files.map(f => f.path);
+    const analysis = parseChunkAnalysis(cleaned, 0, chunkLabel, filePaths);
+
+    if (isChunkAnalysisEmpty(analysis)) {
+      // Save debug output but don't fail — synthesis can still work with partial data
+      const debugDir = path.join(process.cwd(), '.lumiko');
+      await fs.mkdir(debugDir, { recursive: true });
+      await fs.writeFile(
+        path.join(debugDir, `last-chunk-${chunkLabel.replace(/[^a-zA-Z0-9]/g, '_')}.txt`),
+        cleaned || '(empty)',
+      );
+
+      if (this.verbose) {
+        console.log(`[verbose] Warning: chunk "${chunkLabel}" analysis was empty — saved debug output`);
+      }
+    }
+
+    return analysis;
+  }
+
+  async synthesizeDocs(
+    analyses: ChunkAnalysis[],
+    projectName: string,
+    config: LumikoConfig,
+  ): Promise<GeneratedDocs> {
+    // Collect all files from analyses for the file tree
+    // We don't have the actual ScannedFile objects here, so we build minimal placeholders
+    const allFilePaths = analyses.flatMap(a => a.files);
+    const placeholderFiles: ScannedFile[] = allFilePaths.map(p => ({
+      path: p,
+      content: '',
+      size: 0,
+      lines: 0,
+      extension: p.includes('.') ? '.' + p.split('.').pop()! : '',
+    }));
+
+    const prompt = buildSynthesisPrompt(analyses, projectName, config, placeholderFiles);
+    const instruction = buildSynthesisInstruction();
+
+    if (this.verbose) {
+      console.log(`\n[verbose] Synthesis prompt size: ${formatBytes(prompt.length)}`);
+    }
+
+    const rawOutput = await this.runClaude(instruction, prompt);
+    const cleaned = stripAnsi(rawOutput);
+
+    if (this.verbose) {
+      console.log('\n--- RAW SYNTHESIS OUTPUT ---');
+      console.log(cleaned.slice(0, 3000));
+      if (cleaned.length > 3000) {
+        console.log(`... (${cleaned.length - 3000} more chars)`);
+      }
+      console.log('--- END SYNTHESIS OUTPUT ---\n');
+    }
+
+    const docs = parseGeneratedResponse(cleaned);
+
+    if (isDocsEmpty(docs)) {
+      const debugDir = path.join(process.cwd(), '.lumiko');
+      await fs.mkdir(debugDir, { recursive: true });
+      await fs.writeFile(path.join(debugDir, 'last-synthesis-response.txt'), cleaned || '(empty response)');
+
+      throw new Error(
+        'Synthesis: Claude responded, but the output could not be parsed.\n\n' +
+          `Raw response saved to: .lumiko/last-synthesis-response.txt (${formatBytes(cleaned.length)})\n\n` +
+          'This usually means Claude did not use the expected delimiter format.\n' +
+          'Try running again, or use: lumiko generate --verbose',
+      );
+    }
+
+    return docs;
+  }
+
+  async synthesizeContext(
+    analyses: ChunkAnalysis[],
+    files: ScannedFile[],
+    projectName: string,
+    config: LumikoConfig,
+  ): Promise<ContextBundle> {
+    const prompt = buildContextSynthesisPrompt(analyses, projectName, config, files);
+    const instruction = buildContextSynthesisInstruction();
+
+    if (this.verbose) {
+      console.log(`\n[verbose] Context bundle synthesis prompt size: ${formatBytes(prompt.length)}`);
+    }
+
+    const rawOutput = await this.runClaude(instruction, prompt);
+    const cleaned = stripAnsi(rawOutput);
+
+    if (this.verbose) {
+      console.log('\n--- RAW CONTEXT BUNDLE SYNTHESIS OUTPUT ---');
+      console.log(cleaned.slice(0, 3000));
+      if (cleaned.length > 3000) {
+        console.log(`... (${cleaned.length - 3000} more chars)`);
+      }
+      console.log('--- END RAW OUTPUT ---\n');
+    }
+
+    const { bundle, invalidEntries } = parseContextBundle(cleaned);
+
+    if (isBundleEmpty(bundle)) {
+      const debugDir = path.join(process.cwd(), '.lumiko');
+      await fs.mkdir(debugDir, { recursive: true });
+      await fs.writeFile(path.join(debugDir, 'last-context-synthesis-response.txt'), cleaned || '(empty response)');
+
+      throw new Error(
+        'Failed to parse synthesized .context/ bundle — Claude did not return any ---FILE:<path>--- entries.\n\n' +
+          `Raw response saved to: .lumiko/last-context-synthesis-response.txt (${formatBytes(cleaned.length)})\n` +
+          'Try running again, or use: lumiko generate --verbose',
+      );
+    }
+
+    if (invalidEntries.length > 0 && this.verbose) {
+      console.log(`[verbose] ${invalidEntries.length} invalid entries skipped:`);
+      for (const e of invalidEntries) {
+        console.log(`  - ${e.path}: ${e.error}`);
+      }
+    }
+
+    return bundle;
   }
 
   /**

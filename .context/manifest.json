@@ -1,0 +1,49 @@
+{
+  "lumiko": {
+    "version": "1.0.0",
+    "generatedAt": "2026-04-20T22:24:20.080Z",
+    "model": "claude-sonnet-4-20250514"
+  },
+  "project": {
+    "name": "lumiko",
+    "summary": "Lumiko is a CLI tool that auto-generates documentation from a codebase by delegating analysis to Claude. It scans source files, optionally chunks them when the codebase is large, sends them to Claude (via the Claude Code CLI or Anthropic API), and writes both human-facing markdown docs (README.md, architecture.md, api.md) and a machine-readable .context/ bundle for AI coding agents."
+  },
+  "files": [
+    {
+      "path": "overview.json",
+      "description": "Project overview — name, stack, purpose, entry points"
+    },
+    {
+      "path": "architecture.json",
+      "description": "System design — patterns, layers, modules, data flow"
+    },
+    {
+      "path": "conventions.md",
+      "description": "Coding conventions and patterns"
+    },
+    {
+      "path": "commands.json",
+      "description": "Build, test, and dev commands + env vars"
+    },
+    {
+      "path": "modules/src.json",
+      "description": "Per-file details for module \"src\""
+    },
+    {
+      "path": "modules/src-commands.json",
+      "description": "Per-file details for module \"src/commands\""
+    },
+    {
+      "path": "modules/src-core.json",
+      "description": "Per-file details for module \"src/core\""
+    },
+    {
+      "path": "modules/src-types.json",
+      "description": "Per-file details for module \"src/types\""
+    },
+    {
+      "path": "modules/_root.json",
+      "description": "Per-file details for module \"_root\""
+    }
+  ]
+}

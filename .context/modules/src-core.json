@@ -1,0 +1,343 @@
+{
+  "path": "src/core/",
+  "purpose": "Core pipeline logic: configuration, file scanning, chunk planning, prompt construction, response parsing, backend clients for Claude, and output writing.",
+  "files": [
+    {
+      "path": "src/core/chunker.ts",
+      "purpose": "Groups scanned files into token-budgeted chunks for map-reduce generation on large codebases.",
+      "exports": [
+        "Chunk",
+        "ChunkPlan",
+        "estimateFileTokens",
+        "estimateTotalTokens",
+        "buildChunkPlan"
+      ],
+      "dependencies": [
+        "../types/index.js"
+      ],
+      "keyFunctions": [
+        {
+          "name": "estimateFileTokens",
+          "signature": "estimateFileTokens(file: ScannedFile): number",
+          "purpose": "Rough per-file token estimate (chars/4 + 50 overhead)."
+        },
+        {
+          "name": "estimateTotalTokens",
+          "signature": "estimateTotalTokens(files: ScannedFile[]): number",
+          "purpose": "Sum of estimated tokens across all files."
+        },
+        {
+          "name": "buildChunkPlan",
+          "signature": "buildChunkPlan(files: ScannedFile[], maxTokensPerChunk?: number, chunkingThreshold?: number): ChunkPlan",
+          "purpose": "Groups files by top-level directory, splits groups exceeding the budget, merges small chunks, and returns a ChunkPlan."
+        }
+      ]
+    },
+    {
+      "path": "src/core/claude-api.ts",
+      "purpose": "Anthropic SDK-backed DocGenerator; sends prompts to the Claude Messages API and parses the responses.",
+      "exports": [
+        "ClaudeApiClient"
+      ],
+      "dependencies": [
+        "@anthropic-ai/sdk",
+        "../types/index.js",
+        "./prompts.js",
+        "./parse.js"
+      ],
+      "keyFunctions": [
+        {
+          "name": "ClaudeApiClient.constructor",
+          "signature": "new ClaudeApiClient(config: LumikoConfig)",
+          "purpose": "Reads ANTHROPIC_API_KEY from env and constructs the Anthropic client; throws with remediation if missing."
+        },
+        {
+          "name": "ClaudeApiClient.generateDocs",
+          "signature": "generateDocs(files: ScannedFile[], projectName: string): Promise<GeneratedDocs>",
+          "purpose": "Single-shot markdown doc generation via the API; attaches usage tokens to the result."
+        },
+        {
+          "name": "ClaudeApiClient.generateContext",
+          "signature": "generateContext(files: ScannedFile[], projectName: string): Promise<ContextBundle>",
+          "purpose": "Single-shot .context/ bundle generation via the API."
+        },
+        {
+          "name": "ClaudeApiClient.analyzeChunk",
+          "signature": "analyzeChunk(files: ScannedFile[], chunkLabel: string, projectName: string): Promise<ChunkAnalysis>",
+          "purpose": "Analyzes one chunk into a ChunkAnalysis (map phase)."
+        },
+        {
+          "name": "ClaudeApiClient.synthesizeDocs",
+          "signature": "synthesizeDocs(analyses: ChunkAnalysis[], projectName: string, config: LumikoConfig): Promise<GeneratedDocs>",
+          "purpose": "Synthesizes chunk analyses into final markdown docs (reduce phase)."
+        },
+        {
+          "name": "ClaudeApiClient.synthesizeContext",
+          "signature": "synthesizeContext(analyses: ChunkAnalysis[], files: ScannedFile[], projectName: string, config: LumikoConfig): Promise<ContextBundle>",
+          "purpose": "Synthesizes chunk analyses into the .context/ bundle."
+        }
+      ]
+    },
+    {
+      "path": "src/core/claude-code.ts",
+      "purpose": "Claude Code CLI-backed DocGenerator; spawns the `claude` binary with --print, pipes prompt via stdin, and parses the text output. Intentionally omits --model to avoid empty responses with large stdin.",
+      "exports": [
+        "ClaudeCodeClient"
+      ],
+      "dependencies": [
+        "child_process",
+        "fs/promises",
+        "os",
+        "path",
+        "../types/index.js",
+        "./prompts.js",
+        "./parse.js"
+      ],
+      "keyFunctions": [
+        {
+          "name": "ClaudeCodeClient.check",
+          "signature": "static check(): Promise<void>",
+          "purpose": "Verifies the `claude` CLI is installed; rejects with an install hint otherwise."
+        },
+        {
+          "name": "ClaudeCodeClient.generateDocs",
+          "signature": "generateDocs(files: ScannedFile[], projectName: string): Promise<GeneratedDocs>",
+          "purpose": "Runs the CLI with the docs prompt; saves raw output to .lumiko/last-response.txt on parse failure."
+        },
+        {
+          "name": "ClaudeCodeClient.generateContext",
+          "signature": "generateContext(files: ScannedFile[], projectName: string): Promise<ContextBundle>",
+          "purpose": "Runs the CLI with the context bundle prompt and parses the multi-file response."
+        },
+        {
+          "name": "ClaudeCodeClient.analyzeChunk",
+          "signature": "analyzeChunk(files: ScannedFile[], chunkLabel: string, projectName: string): Promise<ChunkAnalysis>",
+          "purpose": "Non-fatal per-chunk analysis; saves debug output for empty responses instead of throwing."
+        },
+        {
+          "name": "ClaudeCodeClient.synthesizeDocs",
+          "signature": "synthesizeDocs(analyses: ChunkAnalysis[], projectName: string, config: LumikoConfig): Promise<GeneratedDocs>",
+          "purpose": "Synthesizes docs from chunk analyses via the CLI."
+        },
+        {
+          "name": "ClaudeCodeClient.synthesizeContext",
+          "signature": "synthesizeContext(analyses: ChunkAnalysis[], files: ScannedFile[], projectName: string, config: LumikoConfig): Promise<ContextBundle>",
+          "purpose": "Synthesizes the .context/ bundle from chunk analyses via the CLI."
+        },
+        {
+          "name": "runClaude",
+          "signature": "runClaude(instruction: string, stdinData: string): Promise<string>",
+          "purpose": "Private: spawns `claude --print --output-format text <instruction>` with stdinData piped, 600s timeout, cwd=tmpdir."
+        }
+      ]
+    },
+    {
+      "path": "src/core/claude.ts",
+      "purpose": "Factory that picks and validates the DocGenerator backend (claude-code or api) based on config and CLI override.",
+      "exports": [
+        "CreateClientOptions",
+        "createClient"
+      ],
+      "dependencies": [
+        "../types/index.js",
+        "./claude-code.js",
+        "./claude-api.js"
+      ],
+      "keyFunctions": [
+        {
+          "name": "createClient",
+          "signature": "createClient(config: LumikoConfig, options?: CreateClientOptions): Promise<DocGenerator>",
+          "purpose": "Returns a ClaudeApiClient or ClaudeCodeClient after validating prerequisites (API key / CLI installed)."
+        }
+      ]
+    },
+    {
+      "path": "src/core/config.ts",
+      "purpose": "Loads, creates, and deep-merges `.lumiko/config.yaml` with sensible defaults; detects project name from package.json.",
+      "exports": [
+        "loadConfig",
+        "createConfig"
+      ],
+      "dependencies": [
+        "fs/promises",
+        "path",
+        "js-yaml",
+        "../types/index.js"
+      ],
+      "keyFunctions": [
+        {
+          "name": "loadConfig",
+          "signature": "loadConfig(projectPath: string): Promise<LumikoConfig>",
+          "purpose": "Reads .lumiko/config.yaml and deep-merges it with DEFAULT_CONFIG; throws a hint if missing."
+        },
+        {
+          "name": "createConfig",
+          "signature": "createConfig(projectPath: string): Promise<void>",
+          "purpose": "Writes a default .lumiko/config.yaml, filling in project name from package.json when available."
+        }
+      ]
+    },
+    {
+      "path": "src/core/output.ts",
+      "purpose": "Writes generated markdown docs and the .context/ bundle to disk, generates manifest.json locally, and reports output stats.",
+      "exports": [
+        "FileStat",
+        "writeOutput",
+        "getOutputStats"
+      ],
+      "dependencies": [
+        "fs/promises",
+        "path",
+        "../types/index.js"
+      ],
+      "keyFunctions": [
+        {
+          "name": "writeOutput",
+          "signature": "writeOutput(docs: GeneratedDocs, projectPath: string, config: LumikoConfig): Promise<void>",
+          "purpose": "Writes README.md/architecture.md/api.md to the output directory and the .context/ bundle + manifest.json."
+        },
+        {
+          "name": "getOutputStats",
+          "signature": "getOutputStats(projectPath: string, config: LumikoConfig): Promise<FileStat[]>",
+          "purpose": "Lists all written output files with human-readable sizes for the summary."
+        }
+      ]
+    },
+    {
+      "path": "src/core/parse.ts",
+      "purpose": "Defensive parsers for Claude responses: markdown doc sections, chunk analyses, and multi-file .context/ bundles with ---FILE:<path>--- delimiters.",
+      "exports": [
+        "parseGeneratedResponse",
+        "isDocsEmpty",
+        "parseChunkAnalysis",
+        "isChunkAnalysisEmpty",
+        "parseContextBundle",
+        "isBundleEmpty"
+      ],
+      "dependencies": [
+        "../types/index.js"
+      ],
+      "keyFunctions": [
+        {
+          "name": "parseGeneratedResponse",
+          "signature": "parseGeneratedResponse(content: string): GeneratedDocs",
+          "purpose": "Extracts README/ARCHITECTURE/API sections using ---SECTION_START/END--- delimiters."
+        },
+        {
+          "name": "isDocsEmpty",
+          "signature": "isDocsEmpty(docs: GeneratedDocs): boolean",
+          "purpose": "Returns true when none of the markdown sections were parsed."
+        },
+        {
+          "name": "parseChunkAnalysis",
+          "signature": "parseChunkAnalysis(content: string, chunkIndex: number, chunkLabel: string, filePaths: string[]): ChunkAnalysis",
+          "purpose": "Extracts summary/exports/architecture/API sections for one chunk."
+        },
+        {
+          "name": "isChunkAnalysisEmpty",
+          "signature": "isChunkAnalysisEmpty(analysis: ChunkAnalysis): boolean",
+          "purpose": "Returns true when the chunk analysis contains only placeholder values."
+        },
+        {
+          "name": "parseContextBundle",
+          "signature": "parseContextBundle(content: string): { bundle: ContextBundle; invalidEntries: Array<{ path: string; error: string }> }",
+          "purpose": "Splits a response on ---FILE:<path>--- markers, strips stray code fences, parses JSON files, and collects invalid JSON separately."
+        },
+        {
+          "name": "isBundleEmpty",
+          "signature": "isBundleEmpty(bundle: ContextBundle): boolean",
+          "purpose": "Returns true when no bundle entries were parsed."
+        }
+      ]
+    },
+    {
+      "path": "src/core/prompts.ts",
+      "purpose": "Central prompt builders for both backends: short CLI instructions and long stdin/API prompts for docs, context bundles, chunk analysis, and synthesis.",
+      "exports": [
+        "buildClaudeCodeInstruction",
+        "buildContextInstruction",
+        "getModuleKey",
+        "getModuleDisplayPath",
+        "groupFilesByModule",
+        "groupPathsByModule",
+        "buildCodebaseContext",
+        "buildContextPrompt",
+        "buildApiPrompt",
+        "buildChunkAnalysisInstruction",
+        "buildChunkAnalysisPrompt",
+        "buildSynthesisInstruction",
+        "buildSynthesisPrompt",
+        "buildContextSynthesisPrompt",
+        "buildContextSynthesisInstruction"
+      ],
+      "dependencies": [
+        "../types/index.js",
+        "./scanner.js"
+      ],
+      "keyFunctions": [
+        {
+          "name": "buildCodebaseContext",
+          "signature": "buildCodebaseContext(files: ScannedFile[], projectName: string, config: LumikoConfig): string",
+          "purpose": "Builds the long prompt with project info, file tree, source contents, and delimiter-formatted sections for markdown docs."
+        },
+        {
+          "name": "buildContextPrompt",
+          "signature": "buildContextPrompt(files: ScannedFile[], projectName: string, config: LumikoConfig): string",
+          "purpose": "Builds the multi-file .context/ bundle prompt with module groupings and ---FILE:<path>--- schema instructions."
+        },
+        {
+          "name": "buildChunkAnalysisPrompt",
+          "signature": "buildChunkAnalysisPrompt(files: ScannedFile[], chunkLabel: string, projectName: string): string",
+          "purpose": "Builds the prompt for analyzing one chunk into summary/exports/architecture/API sections."
+        },
+        {
+          "name": "buildSynthesisPrompt",
+          "signature": "buildSynthesisPrompt(analyses: ChunkAnalysis[], projectName: string, config: LumikoConfig, allFiles: ScannedFile[]): string",
+          "purpose": "Builds the reduce-phase prompt combining chunk analyses into final markdown docs."
+        },
+        {
+          "name": "buildContextSynthesisPrompt",
+          "signature": "buildContextSynthesisPrompt(analyses: ChunkAnalysis[], projectName: string, config: LumikoConfig, allFiles: ScannedFile[]): string",
+          "purpose": "Builds the reduce-phase prompt combining chunk analyses into the .context/ bundle."
+        },
+        {
+          "name": "getModuleKey",
+          "signature": "getModuleKey(filePath: string): string",
+          "purpose": "Converts a file path into a module key (e.g. 'src/core/x.ts' -> 'src-core', root files -> '_root')."
+        },
+        {
+          "name": "groupFilesByModule",
+          "signature": "groupFilesByModule(files: ScannedFile[]): Map<string, ScannedFile[]>",
+          "purpose": "Groups scanned files by their immediate parent directory."
+        }
+      ]
+    },
+    {
+      "path": "src/core/scanner.ts",
+      "purpose": "Walks the project using include/exclude globs, reads files under 100KB, skips binaries, and builds a file tree string.",
+      "exports": [
+        "ScanResult",
+        "scanProject",
+        "buildFileTree"
+      ],
+      "dependencies": [
+        "fs/promises",
+        "path",
+        "glob",
+        "../types/index.js"
+      ],
+      "keyFunctions": [
+        {
+          "name": "scanProject",
+          "signature": "scanProject(projectPath: string, config: LumikoConfig): Promise<ScanResult>",
+          "purpose": "Globs files, filters by size (<100KB) and binary content, and returns ScannedFile[] with totals."
+        },
+        {
+          "name": "buildFileTree",
+          "signature": "buildFileTree(files: ScannedFile[]): string",
+          "purpose": "Renders scanned files as an ASCII tree (├── / └──) for inclusion in prompts."
+        }
+      ]
+    }
+  ]
+}

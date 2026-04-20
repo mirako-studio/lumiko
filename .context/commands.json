@@ -1,0 +1,21 @@
+{
+  "install": "npm install",
+  "build": "npm run build",
+  "dev": null,
+  "test": null,
+  "lint": null,
+  "custom": {
+    "init": "lumiko init",
+    "generate": "lumiko generate",
+    "generate:dry": "lumiko generate --dry-run",
+    "generate:verbose": "lumiko generate --verbose",
+    "generate:api": "lumiko generate --backend api"
+  },
+  "envVars": [
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "required": false,
+      "purpose": "Required only when using the `api` backend. Format: sk-ant-xxxxx. Not needed for the default `claude-code` backend which uses the user's Claude Code subscription."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "path": "./",
+  "purpose": "Project root configuration files.",
+  "files": [
+    {
+      "path": "tsup.config.ts",
+      "purpose": "tsup build config: single ESM entry (src/index.ts), Node 18 target, DTS output, sourcemaps, and a #!/usr/bin/env node shebang banner for the CLI.",
+      "exports": [
+        "default"
+      ],
+      "dependencies": [
+        "tsup"
+      ],
+      "keyFunctions": []
+    }
+  ]
+}

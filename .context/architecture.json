@@ -1,0 +1,45 @@
+{
+  "pattern": "CLI pipeline with optional map-reduce chunking",
+  "layers": [
+    "CLI (commander entry + commands)",
+    "Core pipeline (scanner, chunker, prompts, parser, output)",
+    "Backend clients (Claude Code CLI, Anthropic API)",
+    "Types"
+  ],
+  "dataFlow": "The CLI entry (src/index.ts) dispatches to init or generate. generate loads config, scans the project into ScannedFile[], builds a ChunkPlan, and creates a DocGenerator backend (Claude Code CLI or Anthropic API). If chunking is needed it runs a map-reduce pipeline: each chunk is analyzed into a ChunkAnalysis, then analyses are synthesized into markdown docs and a ContextBundle. Otherwise a single-shot pipeline calls generateDocs/generateContext directly. Claude responses are parsed via delimiter-based extractors (---README_START---, ---FILE:<path>---, ---CHUNK_*_START---) and written to the output directory and .context/ bundle, with a locally generated manifest.json.",
+  "modules": [
+    {
+      "name": "src",
+      "path": "src/",
+      "purpose": "CLI entry point wiring commander to init and generate commands.",
+      "file": "modules/src.json"
+    },
+    {
+      "name": "src/commands",
+      "path": "src/commands/",
+      "purpose": "Command handlers for `lumiko init` and `lumiko generate`.",
+      "file": "modules/src-commands.json"
+    },
+    {
+      "name": "src/core",
+      "path": "src/core/",
+      "purpose": "Core pipeline: config, scanning, chunking, prompt building, response parsing, backend clients, and output writing.",
+      "file": "modules/src-core.json"
+    },
+    {
+      "name": "src/types",
+      "path": "src/types/",
+      "purpose": "Shared TypeScript types for config, scanned files, chunk analyses, and context bundles.",
+      "file": "modules/src-types.json"
+    },
+    {
+      "name": "(root)",
+      "path": "./",
+      "purpose": "Project root configuration (tsup build config).",
+      "file": "modules/_root.json"
+    }
+  ],
+  "diagrams": {
+    "mermaid": "graph TD\n  A[CLI src/index.ts] --> B[generate command]\n  A --> C[init command]\n  B --> D[loadConfig]\n  B --> E[scanProject]\n  E --> F[ScannedFile[]]\n  F --> G[buildChunkPlan]\n  B --> H[createClient]\n  H --> I[ClaudeCodeClient]\n  H --> J[ClaudeApiClient]\n  G -->|chunked| K[analyzeChunk per chunk]\n  K --> L[synthesizeDocs / synthesizeContext]\n  G -->|single-shot| M[generateDocs / generateContext]\n  L --> N[parseGeneratedResponse / parseContextBundle]\n  M --> N\n  N --> O[writeOutput]\n  O --> P[docs/*.md]\n  O --> Q[.context/ bundle + manifest.json]"
+  }
+}
