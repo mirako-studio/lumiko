@@ -6,6 +6,7 @@ import type {
   ContextManifest,
   ContextModule,
   ContextOverview,
+  DependencyGraph,
   LumikoConfig,
 } from '../types/index.js';
 
@@ -21,6 +22,8 @@ export interface LoadedContextBundle {
   commands: ContextCommands;
   /** Module key → ContextModule (e.g. "src-core" → {path, purpose, files}). */
   modules: Map<string, ContextModule>;
+  /** Dependency graph if it exists in the bundle, otherwise null. */
+  graph: DependencyGraph | null;
 }
 
 export class BundleNotFoundError extends Error {
@@ -104,6 +107,15 @@ export async function loadContextBundle(
     // No modules/ directory — still usable, just no per-module details
   }
 
+  // Optional: load the dep graph if one was written. Not required — older
+  // bundles predate this file, and `lumiko graph` can regenerate it later.
+  let graph: DependencyGraph | null = null;
+  try {
+    graph = await readJson<DependencyGraph>(path.join(bundleDir, 'graph.json'));
+  } catch {
+    // No graph.json or unreadable — presets just won't see graph data.
+  }
+
   return {
     manifest,
     overview,
@@ -111,6 +123,7 @@ export async function loadContextBundle(
     conventions: conventions.trim(),
     commands,
     modules,
+    graph,
   };
 }
 

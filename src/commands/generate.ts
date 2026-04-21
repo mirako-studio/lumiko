@@ -8,17 +8,72 @@ import { scanProject } from '../core/scanner.js';
 import { createClient } from '../core/claude.js';
 import { writeOutput, getOutputStats } from '../core/output.js';
 import { buildChunkPlan, estimateTotalTokens } from '../core/chunker.js';
-import { getPreset, loadContextBundle } from '../presets/index.js';
-import type { ScannedFile, ChunkAnalysis } from '../types/index.js';
-import type { Backend, GeneratedDocs, PresetName, LumikoConfig } from '../types/index.js';
+import { buildGraph } from '../graph/index.js';
+import { buildEmbeddings, writeEmbeddings } from '../embeddings/index.js';
+import { getPreset, loadContextBundle, PRESET_NAMES } from '../presets/index.js';
+import type { ScannedFile, ChunkAnalysis, DependencyGraph, ContextModule } from '../types/index.js';
+import type { Backend, GeneratedDocs, PresetName, LumikoConfig, ContextBundle } from '../types/index.js';
+
+type OutputFormat = LumikoConfig['output']['formats'][number];
 
 interface GenerateOptions {
   yes?: boolean;
   dryRun?: boolean;
   backend?: string;
   verbose?: boolean;
+  /** `--full` / `-f` — generate everything regardless of config. */
+  full?: boolean;
+  /** `--embeddings` — add embeddings format to this run. */
+  embeddings?: boolean;
+  /** Per-preset flags. When any are true, they replace config.presets for this run. */
+  claudeCode?: boolean;
+  cursor?: boolean;
+  copilot?: boolean;
+  windsurf?: boolean;
+  agents?: boolean;
   /** commander's --no-presets sets this to false. */
   presets?: boolean;
+}
+
+// ── Flag resolution ─────────────────────────────────────────────────────
+
+/**
+ * Merge flag overrides into the configured output formats.
+ *   --full         → markdown + context + embeddings
+ *   --embeddings   → add embeddings (if not already there)
+ *   Otherwise, config.formats wins.
+ */
+function resolveFormats(config: LumikoConfig, options: GenerateOptions): OutputFormat[] {
+  if (options.full) {
+    return ['markdown', 'context', 'embeddings'];
+  }
+  const set = new Set<OutputFormat>(config.output.formats);
+  if (options.embeddings) set.add('embeddings');
+  return Array.from(set);
+}
+
+/**
+ * Decide which presets to run this invocation.
+ *
+ * Precedence (highest first):
+ *   1. `--no-presets`          → []
+ *   2. `--full`                → all built-in presets
+ *   3. Any per-preset flag set → only those flagged presets (replaces config)
+ *   4. Otherwise               → config.presets
+ */
+function resolvePresets(config: LumikoConfig, options: GenerateOptions): PresetName[] {
+  if (options.presets === false) return [];
+  if (options.full) return [...PRESET_NAMES];
+
+  const flagged: PresetName[] = [];
+  if (options.claudeCode) flagged.push('claude-code');
+  if (options.cursor) flagged.push('cursor');
+  if (options.copilot) flagged.push('copilot');
+  if (options.windsurf) flagged.push('windsurf');
+  if (options.agents) flagged.push('agents');
+
+  if (flagged.length > 0) return flagged;
+  return [...config.presets];
 }
 
 export async function generate(options: GenerateOptions): Promise<void> {
@@ -40,8 +95,28 @@ export async function generate(options: GenerateOptions): Promise<void> {
     process.exit(1);
   }
 
+  // Apply flag overrides: --full, --embeddings, per-preset flags.
+  // We mutate a fresh config copy so the rest of the pipeline sees the
+  // effective (flag-resolved) values without threading extra params.
+  const effectiveFormats = resolveFormats(config, options);
+  const effectivePresets = resolvePresets(config, options);
+  config = {
+    ...config,
+    output: { ...config.output, formats: effectiveFormats },
+    presets: effectivePresets,
+  };
+
   // Resolve backend: CLI flag > config > default
   const backend: Backend = (options.backend as Backend) ?? config.claude.backend;
+
+  // Surface what the flag resolution ended up with, so users see the plan.
+  if (options.full || options.embeddings || options.claudeCode || options.cursor ||
+      options.copilot || options.windsurf || options.agents || options.presets === false) {
+    const formatsDisplay = effectiveFormats.join(', ') || '(none)';
+    const presetsDisplay = effectivePresets.length > 0 ? effectivePresets.join(', ') : '(none)';
+    console.log(chalk.dim(`Formats: ${chalk.cyan(formatsDisplay)}`));
+    console.log(chalk.dim(`Presets: ${chalk.cyan(presetsDisplay)}`));
+  }
 
   // Scan project
   spinner.start('Scanning project...');
@@ -125,8 +200,14 @@ export async function generate(options: GenerateOptions): Promise<void> {
         }),
       );
       console.log(`  - ${ctxDir}/modules/*.json ${chalk.dim(`(${moduleDirs.size} modules)`)}`);
+      console.log(`  - ${ctxDir}/graph.json ${chalk.dim('(dependency graph)')}`);
     }
-    if (options.presets !== false && config.presets.length > 0) {
+    if (config.output.formats.includes('embeddings')) {
+      const ctxDir = config.output.contextDirectory;
+      console.log(`  - ${ctxDir}/embeddings/chunks.jsonl ${chalk.dim('(RAG chunks)')}`);
+      console.log(`  - ${ctxDir}/embeddings/metadata.json`);
+    }
+    if (config.presets.length > 0) {
       console.log(chalk.bold('\n  Presets:'));
       for (const name of config.presets) {
         const p = getPreset(name);
@@ -185,14 +266,50 @@ export async function generate(options: GenerateOptions): Promise<void> {
     docs = await runStandardPipeline(client, files, config, options, spinner);
   }
 
+  // Build the dependency graph — pure static analysis, no Claude calls.
+  let depGraph: DependencyGraph | null = null;
+  if (config.output.formats.includes('context')) {
+    spinner.start('Building dependency graph...');
+    depGraph = buildGraph(files);
+    spinner.succeed(
+      `Dependency graph: ${depGraph.stats.totalFiles} nodes, ` +
+        `${depGraph.stats.totalInternalEdges} edges, ` +
+        `${depGraph.stats.totalExternalPackages} external packages`,
+    );
+  }
+
   // Write output
   spinner.start('Writing files...');
-  await writeOutput(docs, projectPath, config);
+  await writeOutput(docs, projectPath, config, { graph: depGraph });
   spinner.succeed('Files written');
 
-  // Auto-run presets if configured and .context/ was generated
+  // Build embeddings if requested. This runs AFTER the bundle is written
+  // so it can pull per-module metadata (purposes, symbols) from the JSON
+  // we just produced.
+  if (config.output.formats.includes('embeddings') && depGraph) {
+    spinner.start('Building RAG-ready chunks...');
+    try {
+      const modules = bundleToModuleMap(docs.context);
+      const { chunks, metadata } = buildEmbeddings(files, config.project.name, {
+        graph: depGraph,
+        modules,
+      });
+      await writeEmbeddings(chunks, metadata, projectPath, config);
+      spinner.succeed(
+        `Embeddings: ${metadata.totals.chunks} chunks ` +
+          `(${metadata.totals.codeChunks} code + ${metadata.totals.contextChunks} context, ` +
+          `~${metadata.totals.estimatedTokens.toLocaleString()} tokens)`,
+      );
+    } catch (error) {
+      spinner.warn('Embeddings generation failed (other outputs are saved)');
+      if (options.verbose) {
+        console.error(chalk.dim(`  ${(error as Error).message}`));
+      }
+    }
+  }
+
+  // Auto-run presets if any survived flag resolution and .context/ was generated
   const runPresetsAfter =
-    options.presets !== false &&
     config.presets.length > 0 &&
     docs.context !== null &&
     config.output.formats.includes('context');
@@ -383,6 +500,27 @@ function formatBytes(bytes: number): string {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+/**
+ * Extract module JSONs from a ContextBundle (the in-memory form we just
+ * built) into the `Map<moduleKey, ContextModule>` shape the embeddings
+ * enricher expects. Saves re-reading from disk right after writing.
+ */
+function bundleToModuleMap(bundle: ContextBundle | null): Map<string, ContextModule> {
+  const out = new Map<string, ContextModule>();
+  if (!bundle) return out;
+
+  for (const entry of bundle.entries) {
+    if (entry.kind !== 'json') continue;
+    if (!entry.path.startsWith('modules/')) continue;
+    const key = entry.path.replace(/^modules\//, '').replace(/\.json$/, '');
+    if (typeof entry.content === 'object' && entry.content !== null) {
+      out.set(key, entry.content as unknown as ContextModule);
+    }
+  }
+
+  return out;
 }
 
 /**

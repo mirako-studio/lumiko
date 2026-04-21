@@ -3,6 +3,7 @@ import type {
   ContextCommands,
   ContextModule,
   ContextOverview,
+  DependencyGraph,
 } from '../types/index.js';
 
 /**
@@ -125,6 +126,43 @@ export function renderModulesCompact(modules: Map<string, ContextModule>): strin
     }
     lines.push('');
   }
+
+  return lines.join('\n').trimEnd();
+}
+
+/**
+ * Render a "Hotspots & Orphans" section from the dep graph. Useful warning
+ * for agents: files with many importers are refactor danger zones; orphans
+ * are either entry points or dead code.
+ */
+export function renderGraphSection(graph: DependencyGraph | null): string {
+  if (!graph) return '';
+
+  const lines: string[] = ['## Dependency Hotspots', ''];
+
+  if (graph.stats.mostImported.length > 0) {
+    lines.push('Files with the most incoming dependencies — change these with care:');
+    lines.push('');
+    for (const entry of graph.stats.mostImported.slice(0, 5)) {
+      lines.push(`- \`${entry.path}\` — imported by ${entry.importers} file${entry.importers === 1 ? '' : 's'}`);
+    }
+    lines.push('');
+  }
+
+  if (graph.stats.orphans.length > 0) {
+    lines.push(`**Orphans** (${graph.stats.orphans.length} file${graph.stats.orphans.length === 1 ? '' : 's'} with no importers — likely entry points or dead code):`);
+    lines.push('');
+    const preview = graph.stats.orphans.slice(0, 5);
+    for (const p of preview) {
+      lines.push(`- \`${p}\``);
+    }
+    if (graph.stats.orphans.length > 5) {
+      lines.push(`- …and ${graph.stats.orphans.length - 5} more`);
+    }
+    lines.push('');
+  }
+
+  lines.push('Full graph available at `.context/graph.json`.');
 
   return lines.join('\n').trimEnd();
 }

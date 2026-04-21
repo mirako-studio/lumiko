@@ -5,6 +5,7 @@ import {
   renderArchitectureSection,
   renderCommandsSection,
   renderConventionsSection,
+  renderGraphSection,
   renderModulesCompact,
   renderOverviewSection,
   renderStackSection,
@@ -37,6 +38,7 @@ export const claudeCodePreset: Preset = {
       renderCommandsSection(bundle.commands),
       renderArchitectureSection(bundle.architecture),
       renderConventionsSection(bundle.conventions),
+      renderGraphSection(bundle.graph),
       renderModulesCompact(bundle.modules),
       lumikoFooter(),
     ]);

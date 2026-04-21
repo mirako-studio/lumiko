@@ -1,0 +1,1385 @@
+{
+  "generatedAt": "2026-04-21T07:58:12.778Z",
+  "schemaVersion": 1,
+  "languages": [
+    "typescript"
+  ],
+  "stats": {
+    "totalFiles": 30,
+    "totalInternalEdges": 65,
+    "totalExternalPackages": 12,
+    "orphans": [
+      "src/index.ts",
+      "tsup.config.ts"
+    ],
+    "mostImported": [
+      {
+        "path": "src/types/index.ts",
+        "importers": 18
+      },
+      {
+        "path": "src/presets/index.ts",
+        "importers": 7
+      },
+      {
+        "path": "src/presets/shared.ts",
+        "importers": 5
+      },
+      {
+        "path": "src/core/config.ts",
+        "importers": 4
+      },
+      {
+        "path": "src/core/scanner.ts",
+        "importers": 3
+      },
+      {
+        "path": "src/graph/parsers/index.ts",
+        "importers": 3
+      },
+      {
+        "path": "src/core/parse.ts",
+        "importers": 2
+      },
+      {
+        "path": "src/core/prompts.ts",
+        "importers": 2
+      },
+      {
+        "path": "src/graph/index.ts",
+        "importers": 2
+      },
+      {
+        "path": "src/commands/generate.ts",
+        "importers": 1
+      }
+    ],
+    "mostImporting": [
+      {
+        "path": "src/commands/generate.ts",
+        "imports": 13
+      },
+      {
+        "path": "src/commands/graph.ts",
+        "imports": 7
+      },
+      {
+        "path": "src/commands/preset.ts",
+        "imports": 7
+      },
+      {
+        "path": "src/core/claude-code.ts",
+        "imports": 7
+      },
+      {
+        "path": "src/presets/index.ts",
+        "imports": 7
+      },
+      {
+        "path": "src/commands/init.ts",
+        "imports": 5
+      },
+      {
+        "path": "src/index.ts",
+        "imports": 5
+      },
+      {
+        "path": "src/core/claude-api.ts",
+        "imports": 4
+      },
+      {
+        "path": "src/core/config.ts",
+        "imports": 4
+      },
+      {
+        "path": "src/core/scanner.ts",
+        "imports": 4
+      }
+    ]
+  },
+  "nodes": {
+    "src/commands/generate.ts": {
+      "language": "typescript",
+      "loc": 379,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/core/chunker.ts",
+            "symbols": [
+              "buildChunkPlan",
+              "estimateTotalTokens"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/core/claude.ts",
+            "symbols": [
+              "createClient"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/core/config.ts",
+            "symbols": [
+              "loadConfig"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/core/output.ts",
+            "symbols": [
+              "writeOutput",
+              "getOutputStats"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/core/scanner.ts",
+            "symbols": [
+              "scanProject"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/graph/index.ts",
+            "symbols": [
+              "buildGraph"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/presets/index.ts",
+            "symbols": [
+              "getPreset",
+              "loadContextBundle"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "Backend",
+              "ChunkAnalysis",
+              "DependencyGraph",
+              "GeneratedDocs",
+              "LumikoConfig",
+              "PresetName",
+              "ScannedFile"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": [
+          {
+            "package": "chalk",
+            "symbols": [
+              "chalk"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "fs",
+            "symbols": [
+              "fs"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "ora",
+            "symbols": [
+              "ora"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "path",
+            "symbols": [
+              "path"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "prompts",
+            "symbols": [
+              "prompts"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/index.ts"
+      ]
+    },
+    "src/commands/graph.ts": {
+      "language": "typescript",
+      "loc": 70,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/core/config.ts",
+            "symbols": [
+              "loadConfig"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/core/scanner.ts",
+            "symbols": [
+              "scanProject"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/graph/index.ts",
+            "symbols": [
+              "buildGraph"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": [
+          {
+            "package": "chalk",
+            "symbols": [
+              "chalk"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "fs",
+            "symbols": [
+              "fs"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "ora",
+            "symbols": [
+              "ora"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "path",
+            "symbols": [
+              "path"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/index.ts"
+      ]
+    },
+    "src/commands/init.ts": {
+      "language": "typescript",
+      "loc": 40,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/core/config.ts",
+            "symbols": [
+              "createConfig"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": [
+          {
+            "package": "chalk",
+            "symbols": [
+              "chalk"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "fs",
+            "symbols": [
+              "fs"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "ora",
+            "symbols": [
+              "ora"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "path",
+            "symbols": [
+              "path"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/index.ts"
+      ]
+    },
+    "src/commands/preset.ts": {
+      "language": "typescript",
+      "loc": 174,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/core/config.ts",
+            "symbols": [
+              "loadConfig"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/presets/index.ts",
+            "symbols": [
+              "BundleIncompleteError",
+              "BundleNotFoundError",
+              "PRESETS",
+              "PRESET_NAMES",
+              "getPreset",
+              "isPresetName",
+              "loadContextBundle"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "PresetName"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": [
+          {
+            "package": "chalk",
+            "symbols": [
+              "chalk"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "fs",
+            "symbols": [
+              "fs"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "ora",
+            "symbols": [
+              "ora"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "path",
+            "symbols": [
+              "path"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/index.ts"
+      ]
+    },
+    "src/core/chunker.ts": {
+      "language": "typescript",
+      "loc": 199,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "ScannedFile"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/commands/generate.ts"
+      ]
+    },
+    "src/core/claude-api.ts": {
+      "language": "typescript",
+      "loc": 136,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/core/parse.ts",
+            "symbols": [
+              "parseGeneratedResponse",
+              "parseChunkAnalysis",
+              "parseContextBundle",
+              "isBundleEmpty"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/core/prompts.ts",
+            "symbols": [
+              "buildApiPrompt",
+              "buildContextPrompt",
+              "buildChunkAnalysisPrompt",
+              "buildSynthesisPrompt",
+              "buildContextSynthesisPrompt"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "LumikoConfig",
+              "ScannedFile",
+              "GeneratedDocs",
+              "DocGenerator",
+              "ChunkAnalysis",
+              "ContextBundle"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": [
+          {
+            "package": "@anthropic-ai/sdk",
+            "symbols": [
+              "Anthropic"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/core/claude.ts"
+      ]
+    },
+    "src/core/claude-code.ts": {
+      "language": "typescript",
+      "loc": 300,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/core/parse.ts",
+            "symbols": [
+              "parseGeneratedResponse",
+              "isDocsEmpty",
+              "parseChunkAnalysis",
+              "isChunkAnalysisEmpty",
+              "parseContextBundle",
+              "isBundleEmpty"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/core/prompts.ts",
+            "symbols": [
+              "buildCodebaseContext",
+              "buildClaudeCodeInstruction",
+              "buildContextPrompt",
+              "buildContextInstruction",
+              "buildChunkAnalysisPrompt",
+              "buildChunkAnalysisInstruction",
+              "buildSynthesisPrompt",
+              "buildSynthesisInstruction",
+              "buildContextSynthesisPrompt",
+              "buildContextSynthesisInstruction"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "LumikoConfig",
+              "ScannedFile",
+              "GeneratedDocs",
+              "DocGenerator",
+              "ChunkAnalysis",
+              "ContextBundle"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": [
+          {
+            "package": "child_process",
+            "symbols": [
+              "execFile",
+              "spawn"
+            ],
+            "style": "named"
+          },
+          {
+            "package": "fs",
+            "symbols": [
+              "fs"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "os",
+            "symbols": [
+              "os"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "path",
+            "symbols": [
+              "path"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/core/claude.ts"
+      ]
+    },
+    "src/core/claude.ts": {
+      "language": "typescript",
+      "loc": 23,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/core/claude-api.ts",
+            "symbols": [
+              "ClaudeApiClient"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/core/claude-code.ts",
+            "symbols": [
+              "ClaudeCodeClient"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "LumikoConfig",
+              "DocGenerator",
+              "Backend"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/commands/generate.ts"
+      ]
+    },
+    "src/core/config.ts": {
+      "language": "typescript",
+      "loc": 99,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "LumikoConfig"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": [
+          {
+            "package": "fs",
+            "symbols": [
+              "fs"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "js-yaml",
+            "symbols": [
+              "yaml"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "path",
+            "symbols": [
+              "path"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/commands/generate.ts",
+        "src/commands/graph.ts",
+        "src/commands/init.ts",
+        "src/commands/preset.ts"
+      ]
+    },
+    "src/core/output.ts": {
+      "language": "typescript",
+      "loc": 226,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "GeneratedDocs",
+              "LumikoConfig",
+              "ContextBundle",
+              "ContextManifest",
+              "DependencyGraph"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": [
+          {
+            "package": "fs",
+            "symbols": [
+              "fs"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "path",
+            "symbols": [
+              "path"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/commands/generate.ts"
+      ]
+    },
+    "src/core/parse.ts": {
+      "language": "typescript",
+      "loc": 154,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "GeneratedDocs",
+              "ChunkAnalysis",
+              "ContextBundle",
+              "ContextBundleEntry"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/core/claude-api.ts",
+        "src/core/claude-code.ts"
+      ]
+    },
+    "src/core/prompts.ts": {
+      "language": "typescript",
+      "loc": 656,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/core/scanner.ts",
+            "symbols": [
+              "buildFileTree"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "LumikoConfig",
+              "ScannedFile",
+              "ChunkAnalysis"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/core/claude-api.ts",
+        "src/core/claude-code.ts"
+      ]
+    },
+    "src/core/scanner.ts": {
+      "language": "typescript",
+      "loc": 87,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "LumikoConfig",
+              "ScannedFile"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": [
+          {
+            "package": "fs",
+            "symbols": [
+              "fs"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "glob",
+            "symbols": [
+              "glob"
+            ],
+            "style": "named"
+          },
+          {
+            "package": "path",
+            "symbols": [
+              "path"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/commands/generate.ts",
+        "src/commands/graph.ts",
+        "src/core/prompts.ts"
+      ]
+    },
+    "src/graph/index.ts": {
+      "language": "typescript",
+      "loc": 147,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/graph/parsers/index.ts",
+            "symbols": [
+              "getLanguage",
+              "getParser"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/graph/resolver.ts",
+            "symbols": [
+              "extractPackageName",
+              "normalize",
+              "resolveImport"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/graph/stats.ts",
+            "symbols": [
+              "computeStats"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "DependencyGraph",
+              "GraphExternalImport",
+              "GraphInternalImport",
+              "GraphNode",
+              "ScannedFile"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/commands/generate.ts",
+        "src/commands/graph.ts"
+      ]
+    },
+    "src/graph/parsers/index.ts": {
+      "language": "typescript",
+      "loc": 44,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/graph/parsers/python.ts",
+            "symbols": [
+              "parsePython"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/graph/parsers/typescript.ts",
+            "symbols": [
+              "parseTypescript"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "ImportStyle"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/graph/index.ts",
+        "src/graph/parsers/python.ts",
+        "src/graph/parsers/typescript.ts"
+      ]
+    },
+    "src/graph/parsers/python.ts": {
+      "language": "typescript",
+      "loc": 124,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/graph/parsers/index.ts",
+            "symbols": [
+              "RawImport"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/graph/parsers/index.ts"
+      ]
+    },
+    "src/graph/parsers/typescript.ts": {
+      "language": "typescript",
+      "loc": 225,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/graph/parsers/index.ts",
+            "symbols": [
+              "RawImport"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "ImportStyle"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/graph/parsers/index.ts"
+      ]
+    },
+    "src/graph/resolver.ts": {
+      "language": "typescript",
+      "loc": 122,
+      "imports": {
+        "internal": [],
+        "external": [
+          {
+            "package": "path",
+            "symbols": [
+              "path"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/graph/index.ts"
+      ]
+    },
+    "src/graph/stats.ts": {
+      "language": "typescript",
+      "loc": 34,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "GraphNode",
+              "GraphStats"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/graph/index.ts"
+      ]
+    },
+    "src/index.ts": {
+      "language": "typescript",
+      "loc": 40,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/commands/generate.ts",
+            "symbols": [
+              "generate"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/commands/graph.ts",
+            "symbols": [
+              "graph"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/commands/init.ts",
+            "symbols": [
+              "init"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/commands/preset.ts",
+            "symbols": [
+              "preset"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": [
+          {
+            "package": "commander",
+            "symbols": [
+              "Command"
+            ],
+            "style": "named"
+          }
+        ]
+      },
+      "importedBy": []
+    },
+    "src/presets/agents.ts": {
+      "language": "typescript",
+      "loc": 45,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/presets/index.ts",
+            "symbols": [
+              "Preset"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/presets/shared.ts",
+            "symbols": [
+              "joinSections",
+              "lumikoFooter",
+              "renderArchitectureSection",
+              "renderCommandsSection",
+              "renderConventionsSection",
+              "renderGraphSection",
+              "renderModulesCompact",
+              "renderOverviewSection",
+              "renderStackSection"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/presets/index.ts"
+      ]
+    },
+    "src/presets/bundle-loader.ts": {
+      "language": "typescript",
+      "loc": 119,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "ContextArchitecture",
+              "ContextCommands",
+              "ContextManifest",
+              "ContextModule",
+              "ContextOverview",
+              "DependencyGraph",
+              "LumikoConfig"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": [
+          {
+            "package": "fs",
+            "symbols": [
+              "fs"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "path",
+            "symbols": [
+              "path"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/presets/index.ts"
+      ]
+    },
+    "src/presets/claude-code.ts": {
+      "language": "typescript",
+      "loc": 46,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/presets/index.ts",
+            "symbols": [
+              "Preset"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/presets/shared.ts",
+            "symbols": [
+              "joinSections",
+              "lumikoFooter",
+              "renderArchitectureSection",
+              "renderCommandsSection",
+              "renderConventionsSection",
+              "renderGraphSection",
+              "renderModulesCompact",
+              "renderOverviewSection",
+              "renderStackSection"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/presets/index.ts"
+      ]
+    },
+    "src/presets/copilot.ts": {
+      "language": "typescript",
+      "loc": 45,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/presets/index.ts",
+            "symbols": [
+              "Preset"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/presets/shared.ts",
+            "symbols": [
+              "joinSections",
+              "lumikoFooter",
+              "renderArchitectureSection",
+              "renderCommandsSection",
+              "renderConventionsSection",
+              "renderGraphSection",
+              "renderModulesCompact",
+              "renderOverviewSection",
+              "renderStackSection"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/presets/index.ts"
+      ]
+    },
+    "src/presets/cursor.ts": {
+      "language": "typescript",
+      "loc": 53,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/presets/index.ts",
+            "symbols": [
+              "Preset"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/presets/shared.ts",
+            "symbols": [
+              "joinSections",
+              "renderArchitectureSection",
+              "renderCommandsSection",
+              "renderConventionsSection",
+              "renderGraphSection",
+              "renderModulesCompact",
+              "renderOverviewSection",
+              "renderStackSection"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/presets/index.ts"
+      ]
+    },
+    "src/presets/index.ts": {
+      "language": "typescript",
+      "loc": 45,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/presets/agents.ts",
+            "symbols": [
+              "agentsPreset"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/presets/bundle-loader.ts",
+            "symbols": [
+              "BundleIncompleteError",
+              "BundleNotFoundError",
+              "LoadedContextBundle",
+              "loadContextBundle"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/presets/claude-code.ts",
+            "symbols": [
+              "claudeCodePreset"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/presets/copilot.ts",
+            "symbols": [
+              "copilotPreset"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/presets/cursor.ts",
+            "symbols": [
+              "cursorPreset"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/presets/windsurf.ts",
+            "symbols": [
+              "windsurfPreset"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "LumikoConfig",
+              "PresetName"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/commands/generate.ts",
+        "src/commands/preset.ts",
+        "src/presets/agents.ts",
+        "src/presets/claude-code.ts",
+        "src/presets/copilot.ts",
+        "src/presets/cursor.ts",
+        "src/presets/windsurf.ts"
+      ]
+    },
+    "src/presets/shared.ts": {
+      "language": "typescript",
+      "loc": 166,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "ContextArchitecture",
+              "ContextCommands",
+              "ContextModule",
+              "ContextOverview",
+              "DependencyGraph"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/presets/agents.ts",
+        "src/presets/claude-code.ts",
+        "src/presets/copilot.ts",
+        "src/presets/cursor.ts",
+        "src/presets/windsurf.ts"
+      ]
+    },
+    "src/presets/windsurf.ts": {
+      "language": "typescript",
+      "loc": 38,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/presets/index.ts",
+            "symbols": [
+              "Preset"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/presets/shared.ts",
+            "symbols": [
+              "joinSections",
+              "renderArchitectureSection",
+              "renderCommandsSection",
+              "renderConventionsSection",
+              "renderGraphSection",
+              "renderModulesCompact",
+              "renderOverviewSection",
+              "renderStackSection"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/presets/index.ts"
+      ]
+    },
+    "src/types/index.ts": {
+      "language": "typescript",
+      "loc": 255,
+      "imports": {
+        "internal": [],
+        "external": []
+      },
+      "importedBy": [
+        "src/commands/generate.ts",
+        "src/commands/preset.ts",
+        "src/core/chunker.ts",
+        "src/core/claude-api.ts",
+        "src/core/claude-code.ts",
+        "src/core/claude.ts",
+        "src/core/config.ts",
+        "src/core/output.ts",
+        "src/core/parse.ts",
+        "src/core/prompts.ts",
+        "src/core/scanner.ts",
+        "src/graph/index.ts",
+        "src/graph/parsers/index.ts",
+        "src/graph/parsers/typescript.ts",
+        "src/graph/stats.ts",
+        "src/presets/bundle-loader.ts",
+        "src/presets/index.ts",
+        "src/presets/shared.ts"
+      ]
+    },
+    "tsup.config.ts": {
+      "language": "typescript",
+      "loc": 13,
+      "imports": {
+        "internal": [],
+        "external": [
+          {
+            "package": "tsup",
+            "symbols": [
+              "defineConfig"
+            ],
+            "style": "named"
+          }
+        ]
+      },
+      "importedBy": []
+    }
+  },
+  "externalPackages": {
+    "@anthropic-ai/sdk": [
+      "src/core/claude-api.ts"
+    ],
+    "chalk": [
+      "src/commands/generate.ts",
+      "src/commands/graph.ts",
+      "src/commands/init.ts",
+      "src/commands/preset.ts"
+    ],
+    "child_process": [
+      "src/core/claude-code.ts"
+    ],
+    "commander": [
+      "src/index.ts"
+    ],
+    "fs": [
+      "src/commands/generate.ts",
+      "src/commands/graph.ts",
+      "src/commands/init.ts",
+      "src/commands/preset.ts",
+      "src/core/claude-code.ts",
+      "src/core/config.ts",
+      "src/core/output.ts",
+      "src/core/scanner.ts",
+      "src/presets/bundle-loader.ts"
+    ],
+    "glob": [
+      "src/core/scanner.ts"
+    ],
+    "js-yaml": [
+      "src/core/config.ts"
+    ],
+    "ora": [
+      "src/commands/generate.ts",
+      "src/commands/graph.ts",
+      "src/commands/init.ts",
+      "src/commands/preset.ts"
+    ],
+    "os": [
+      "src/core/claude-code.ts"
+    ],
+    "path": [
+      "src/commands/generate.ts",
+      "src/commands/graph.ts",
+      "src/commands/init.ts",
+      "src/commands/preset.ts",
+      "src/core/claude-code.ts",
+      "src/core/config.ts",
+      "src/core/output.ts",
+      "src/core/scanner.ts",
+      "src/graph/resolver.ts",
+      "src/presets/bundle-loader.ts"
+    ],
+    "prompts": [
+      "src/commands/generate.ts"
+    ],
+    "tsup": [
+      "tsup.config.ts"
+    ]
+  }
+}

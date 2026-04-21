@@ -2,6 +2,8 @@ import { Command } from 'commander';
 import { init } from './commands/init.js';
 import { generate } from './commands/generate.js';
 import { preset } from './commands/preset.js';
+import { graph } from './commands/graph.js';
+import { embeddings } from './commands/embeddings.js';
 
 const program = new Command();
 
@@ -26,7 +28,14 @@ program
     'Backend to use: "claude-code" (default, uses subscription) or "api" (requires ANTHROPIC_API_KEY)',
   )
   .option('--verbose', 'Show raw Claude output for debugging')
-  .option('--no-presets', 'Skip auto-running presets listed in config')
+  .option('-f, --full', 'Generate everything — all formats (markdown+context+embeddings) and all presets')
+  .option('--embeddings', 'Include RAG-ready embeddings this run (adds to config formats)')
+  .option('--claude-code', 'Run the claude-code preset this run (overrides config.presets)')
+  .option('--cursor', 'Run the cursor preset this run (overrides config.presets)')
+  .option('--copilot', 'Run the copilot preset this run (overrides config.presets)')
+  .option('--windsurf', 'Run the windsurf preset this run (overrides config.presets)')
+  .option('--agents', 'Run the agents preset this run (overrides config.presets)')
+  .option('--no-presets', 'Skip all presets (overrides --full and per-preset flags)')
   .action(generate);
 
 program
@@ -36,5 +45,17 @@ program
   )
   .option('--dry-run', 'Show what would be written without creating files')
   .action(preset);
+
+program
+  .command('graph')
+  .description('Build just the dependency graph (.context/graph.json) — no Claude, no cost')
+  .option('--dry-run', 'Analyze imports and show stats without writing the file')
+  .action(graph);
+
+program
+  .command('embeddings')
+  .description('Build RAG-ready chunks (.context/embeddings/chunks.jsonl) — no Claude, no cost')
+  .option('--dry-run', 'Build chunks and show stats without writing files')
+  .action(embeddings);
 
 program.parse();

@@ -34,8 +34,9 @@ output:
   # context consumed by coding agents (Claude Code, Cursor, etc.)
   contextDirectory: ".context"
   formats:
-    - markdown  # README.md, architecture.md, api.md (for humans)
-    - context   # .context/ bundle (for AI agents)
+    - markdown    # README.md, architecture.md, api.md (for humans)
+    - context     # .context/ bundle (for AI agents)
+    # - embeddings  # .context/embeddings/chunks.jsonl (RAG-ready, opt-in)
 
 # Documentation options
 docs:

@@ -142,6 +142,23 @@ graph TD
 ## Comments
 - Minimal comments — types and names carry the meaning. Use block comments only for non-obvious invariants (e.g. why `--model` is not passed to `claude`).
 
+## Dependency Hotspots
+
+Files with the most incoming dependencies — change these with care:
+
+- `src/types/index.ts` — imported by 18 files
+- `src/presets/index.ts` — imported by 7 files
+- `src/presets/shared.ts` — imported by 5 files
+- `src/core/config.ts` — imported by 4 files
+- `src/core/scanner.ts` — imported by 3 files
+
+**Orphans** (2 files with no importers — likely entry points or dead code):
+
+- `src/index.ts`
+- `tsup.config.ts`
+
+Full graph available at `.context/graph.json`.
+
 ## File Map
 
 ### `./`

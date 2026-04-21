@@ -37,7 +37,4 @@ chunking:
   enabled: auto
   maxTokensPerChunk: 80000
   threshold: 100000
-presets:
-  - claude-code
-  - cursor
-  - agents
+presets: []
