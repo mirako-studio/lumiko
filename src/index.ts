@@ -1,3 +1,7 @@
+// Side-effect import — registers a warning filter before any other module
+// loads, so DEP0040 (transitive `punycode` usage) gets swallowed.
+import './setup.js';
+
 import { Command } from 'commander';
 import { init } from './commands/init.js';
 import { generate } from './commands/generate.js';

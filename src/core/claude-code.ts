@@ -27,10 +27,17 @@ import {
 export class ClaudeCodeClient implements DocGenerator {
   private config: LumikoConfig;
   private verbose: boolean;
+  /** Running count of Claude invocations this session. */
+  private apiCalls = 0;
 
   constructor(config: LumikoConfig, verbose = false) {
     this.config = config;
     this.verbose = verbose;
+  }
+
+  /** Number of Claude Code invocations made by this client so far. */
+  getApiCalls(): number {
+    return this.apiCalls;
   }
 
   /**
@@ -295,6 +302,7 @@ export class ClaudeCodeClient implements DocGenerator {
    * stdin data is read by Claude as additional context.
    */
   private runClaude(instruction: string, stdinData: string): Promise<string> {
+    this.apiCalls++;
     return new Promise((resolve, reject) => {
       const args = [
         '--print',

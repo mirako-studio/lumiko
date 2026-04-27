@@ -12,6 +12,8 @@ import { parseGeneratedResponse, parseChunkAnalysis, parseContextBundle, isBundl
 export class ClaudeApiClient implements DocGenerator {
   private client: Anthropic;
   private config: LumikoConfig;
+  /** Running count of Anthropic API calls this session. */
+  private apiCalls = 0;
 
   constructor(config: LumikoConfig) {
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -31,14 +33,24 @@ export class ClaudeApiClient implements DocGenerator {
     this.config = config;
   }
 
-  async generateDocs(files: ScannedFile[], projectName: string): Promise<GeneratedDocs> {
-    const prompt = buildApiPrompt(files, projectName, this.config);
+  /** Number of Anthropic API calls made by this client so far. */
+  getApiCalls(): number {
+    return this.apiCalls;
+  }
 
-    const response = await this.client.messages.create({
+  private async callClaude(prompt: string): Promise<Anthropic.Message> {
+    this.apiCalls++;
+    return this.client.messages.create({
       model: this.config.claude.model,
       max_tokens: this.config.claude.maxTokens,
       messages: [{ role: 'user', content: prompt }],
     });
+  }
+
+  async generateDocs(files: ScannedFile[], projectName: string): Promise<GeneratedDocs> {
+    const prompt = buildApiPrompt(files, projectName, this.config);
+
+    const response = await this.callClaude(prompt);
 
     const content = response.content
       .filter((block): block is Anthropic.TextBlock => block.type === 'text')
@@ -59,11 +71,7 @@ export class ClaudeApiClient implements DocGenerator {
   async generateContext(files: ScannedFile[], projectName: string): Promise<ContextBundle> {
     const prompt = buildContextPrompt(files, projectName, this.config);
 
-    const response = await this.client.messages.create({
-      model: this.config.claude.model,
-      max_tokens: this.config.claude.maxTokens,
-      messages: [{ role: 'user', content: prompt }],
-    });
+    const response = await this.callClaude(prompt);
 
     const content = this.extractText(response);
     const { bundle } = parseContextBundle(content);
@@ -84,11 +92,7 @@ export class ClaudeApiClient implements DocGenerator {
   ): Promise<ChunkAnalysis> {
     const prompt = buildChunkAnalysisPrompt(files, chunkLabel, projectName);
 
-    const response = await this.client.messages.create({
-      model: this.config.claude.model,
-      max_tokens: this.config.claude.maxTokens,
-      messages: [{ role: 'user', content: prompt }],
-    });
+    const response = await this.callClaude(prompt);
 
     const content = this.extractText(response);
     const filePaths = files.map(f => f.path);
@@ -112,11 +116,7 @@ export class ClaudeApiClient implements DocGenerator {
 
     const prompt = buildSynthesisPrompt(analyses, projectName, config, placeholderFiles);
 
-    const response = await this.client.messages.create({
-      model: this.config.claude.model,
-      max_tokens: this.config.claude.maxTokens,
-      messages: [{ role: 'user', content: prompt }],
-    });
+    const response = await this.callClaude(prompt);
 
     const content = this.extractText(response);
     const docs = parseGeneratedResponse(content);
@@ -138,11 +138,7 @@ export class ClaudeApiClient implements DocGenerator {
   ): Promise<ContextBundle> {
     const prompt = buildContextSynthesisPrompt(analyses, projectName, config, files);
 
-    const response = await this.client.messages.create({
-      model: this.config.claude.model,
-      max_tokens: this.config.claude.maxTokens,
-      messages: [{ role: 'user', content: prompt }],
-    });
+    const response = await this.callClaude(prompt);
 
     const content = this.extractText(response);
     const { bundle } = parseContextBundle(content);

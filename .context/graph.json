@@ -1,63 +1,68 @@
 {
-  "generatedAt": "2026-04-21T07:58:12.778Z",
+  "generatedAt": "2026-04-22T14:59:33.013Z",
   "schemaVersion": 1,
   "languages": [
     "typescript"
   ],
   "stats": {
-    "totalFiles": 30,
-    "totalInternalEdges": 65,
+    "totalFiles": 37,
+    "totalInternalEdges": 88,
     "totalExternalPackages": 12,
     "orphans": [
       "src/index.ts",
-      "tsup.config.ts"
+      "tsup.config.ts",
+      "vitest.config.ts"
     ],
     "mostImported": [
       {
         "path": "src/types/index.ts",
-        "importers": 18
+        "importers": 23
       },
       {
         "path": "src/presets/index.ts",
         "importers": 7
       },
       {
+        "path": "src/core/config.ts",
+        "importers": 5
+      },
+      {
+        "path": "src/graph/parsers/index.ts",
+        "importers": 5
+      },
+      {
         "path": "src/presets/shared.ts",
         "importers": 5
       },
       {
-        "path": "src/core/config.ts",
-        "importers": 4
+        "path": "src/ui/reporter.ts",
+        "importers": 5
       },
       {
         "path": "src/core/scanner.ts",
+        "importers": 4
+      },
+      {
+        "path": "src/core/prompts.ts",
         "importers": 3
       },
       {
-        "path": "src/graph/parsers/index.ts",
+        "path": "src/graph/index.ts",
         "importers": 3
       },
       {
         "path": "src/core/parse.ts",
         "importers": 2
-      },
-      {
-        "path": "src/core/prompts.ts",
-        "importers": 2
-      },
-      {
-        "path": "src/graph/index.ts",
-        "importers": 2
-      },
-      {
-        "path": "src/commands/generate.ts",
-        "importers": 1
       }
     ],
     "mostImporting": [
       {
         "path": "src/commands/generate.ts",
-        "imports": 13
+        "imports": 14
+      },
+      {
+        "path": "src/commands/embeddings.ts",
+        "imports": 9
       },
       {
         "path": "src/commands/graph.ts",
@@ -72,42 +77,115 @@
         "imports": 7
       },
       {
+        "path": "src/index.ts",
+        "imports": 7
+      },
+      {
         "path": "src/presets/index.ts",
         "imports": 7
+      },
+      {
+        "path": "src/embeddings/index.ts",
+        "imports": 6
       },
       {
         "path": "src/commands/init.ts",
         "imports": 5
       },
       {
-        "path": "src/index.ts",
-        "imports": 5
-      },
-      {
         "path": "src/core/claude-api.ts",
-        "imports": 4
-      },
-      {
-        "path": "src/core/config.ts",
-        "imports": 4
-      },
-      {
-        "path": "src/core/scanner.ts",
         "imports": 4
       }
     ]
   },
   "nodes": {
+    "src/commands/embeddings.ts": {
+      "language": "typescript",
+      "loc": 105,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/core/config.ts",
+            "symbols": [
+              "loadConfig"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/core/scanner.ts",
+            "symbols": [
+              "scanProject"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/embeddings/index.ts",
+            "symbols": [
+              "buildEmbeddings",
+              "writeEmbeddings"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/graph/index.ts",
+            "symbols": [
+              "buildGraph"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "ContextModule",
+              "DependencyGraph"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/ui/reporter.ts",
+            "symbols": [
+              "*"
+            ],
+            "style": "namespace"
+          }
+        ],
+        "external": [
+          {
+            "package": "chalk",
+            "symbols": [
+              "chalk"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "fs",
+            "symbols": [
+              "fs"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "path",
+            "symbols": [
+              "path"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/index.ts"
+      ]
+    },
     "src/commands/generate.ts": {
       "language": "typescript",
-      "loc": 379,
+      "loc": 398,
       "imports": {
         "internal": [
           {
             "path": "src/core/chunker.ts",
             "symbols": [
-              "buildChunkPlan",
-              "estimateTotalTokens"
+              "buildChunkPlan"
             ],
             "style": "named"
           },
@@ -128,8 +206,7 @@
           {
             "path": "src/core/output.ts",
             "symbols": [
-              "writeOutput",
-              "getOutputStats"
+              "writeOutput"
             ],
             "style": "named"
           },
@@ -137,6 +214,14 @@
             "path": "src/core/scanner.ts",
             "symbols": [
               "scanProject"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/embeddings/index.ts",
+            "symbols": [
+              "buildEmbeddings",
+              "writeEmbeddings"
             ],
             "style": "named"
           },
@@ -151,7 +236,8 @@
             "path": "src/presets/index.ts",
             "symbols": [
               "getPreset",
-              "loadContextBundle"
+              "loadContextBundle",
+              "PRESET_NAMES"
             ],
             "style": "named"
           },
@@ -160,13 +246,23 @@
             "symbols": [
               "Backend",
               "ChunkAnalysis",
+              "ContextBundle",
+              "ContextModule",
               "DependencyGraph",
+              "DocGenerator",
               "GeneratedDocs",
               "LumikoConfig",
               "PresetName",
               "ScannedFile"
             ],
             "style": "named"
+          },
+          {
+            "path": "src/ui/reporter.ts",
+            "symbols": [
+              "*"
+            ],
+            "style": "namespace"
           }
         ],
         "external": [
@@ -181,13 +277,6 @@
             "package": "fs",
             "symbols": [
               "fs"
-            ],
-            "style": "default"
-          },
-          {
-            "package": "ora",
-            "symbols": [
-              "ora"
             ],
             "style": "default"
           },
@@ -213,7 +302,7 @@
     },
     "src/commands/graph.ts": {
       "language": "typescript",
-      "loc": 70,
+      "loc": 80,
       "imports": {
         "internal": [
           {
@@ -236,6 +325,13 @@
               "buildGraph"
             ],
             "style": "named"
+          },
+          {
+            "path": "src/ui/reporter.ts",
+            "symbols": [
+              "*"
+            ],
+            "style": "namespace"
           }
         ],
         "external": [
@@ -250,13 +346,6 @@
             "package": "fs",
             "symbols": [
               "fs"
-            ],
-            "style": "default"
-          },
-          {
-            "package": "ora",
-            "symbols": [
-              "ora"
             ],
             "style": "default"
           },
@@ -275,7 +364,7 @@
     },
     "src/commands/init.ts": {
       "language": "typescript",
-      "loc": 40,
+      "loc": 45,
       "imports": {
         "internal": [
           {
@@ -284,6 +373,13 @@
               "createConfig"
             ],
             "style": "named"
+          },
+          {
+            "path": "src/ui/reporter.ts",
+            "symbols": [
+              "*"
+            ],
+            "style": "namespace"
           }
         ],
         "external": [
@@ -298,13 +394,6 @@
             "package": "fs",
             "symbols": [
               "fs"
-            ],
-            "style": "default"
-          },
-          {
-            "package": "ora",
-            "symbols": [
-              "ora"
             ],
             "style": "default"
           },
@@ -323,7 +412,7 @@
     },
     "src/commands/preset.ts": {
       "language": "typescript",
-      "loc": 174,
+      "loc": 136,
       "imports": {
         "internal": [
           {
@@ -336,13 +425,13 @@
           {
             "path": "src/presets/index.ts",
             "symbols": [
-              "BundleIncompleteError",
-              "BundleNotFoundError",
               "PRESETS",
               "PRESET_NAMES",
               "getPreset",
               "isPresetName",
-              "loadContextBundle"
+              "loadContextBundle",
+              "BundleNotFoundError",
+              "BundleIncompleteError"
             ],
             "style": "named"
           },
@@ -352,6 +441,13 @@
               "PresetName"
             ],
             "style": "named"
+          },
+          {
+            "path": "src/ui/reporter.ts",
+            "symbols": [
+              "*"
+            ],
+            "style": "namespace"
           }
         ],
         "external": [
@@ -366,13 +462,6 @@
             "package": "fs",
             "symbols": [
               "fs"
-            ],
-            "style": "default"
-          },
-          {
-            "package": "ora",
-            "symbols": [
-              "ora"
             ],
             "style": "default"
           },
@@ -410,7 +499,7 @@
     },
     "src/core/claude-api.ts": {
       "language": "typescript",
-      "loc": 136,
+      "loc": 130,
       "imports": {
         "internal": [
           {
@@ -463,7 +552,7 @@
     },
     "src/core/claude-code.ts": {
       "language": "typescript",
-      "loc": 300,
+      "loc": 307,
       "imports": {
         "internal": [
           {
@@ -616,6 +705,7 @@
         ]
       },
       "importedBy": [
+        "src/commands/embeddings.ts",
         "src/commands/generate.ts",
         "src/commands/graph.ts",
         "src/commands/init.ts",
@@ -709,7 +799,8 @@
       },
       "importedBy": [
         "src/core/claude-api.ts",
-        "src/core/claude-code.ts"
+        "src/core/claude-code.ts",
+        "src/embeddings/metadata.ts"
       ]
     },
     "src/core/scanner.ts": {
@@ -751,9 +842,141 @@
         ]
       },
       "importedBy": [
+        "src/commands/embeddings.ts",
         "src/commands/generate.ts",
         "src/commands/graph.ts",
         "src/core/prompts.ts"
+      ]
+    },
+    "src/embeddings/chunker.ts": {
+      "language": "typescript",
+      "loc": 149,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "ScannedFile"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/embeddings/index.ts",
+        "src/embeddings/metadata.ts"
+      ]
+    },
+    "src/embeddings/index.ts": {
+      "language": "typescript",
+      "loc": 144,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/embeddings/chunker.ts",
+            "symbols": [
+              "sliceFile",
+              "estimateTokens",
+              "DEFAULT_OPTIONS",
+              "ChunkerOptions"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/embeddings/metadata.ts",
+            "symbols": [
+              "buildContextChunk",
+              "enrichCodeChunk",
+              "EnrichmentSources"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/graph/parsers/index.ts",
+            "symbols": [
+              "getParser"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "ContextModule",
+              "DependencyGraph",
+              "EmbeddingChunk",
+              "EmbeddingsMetadata",
+              "LumikoConfig",
+              "ScannedFile"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": [
+          {
+            "package": "fs",
+            "symbols": [
+              "fs"
+            ],
+            "style": "default"
+          },
+          {
+            "package": "path",
+            "symbols": [
+              "path"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/commands/embeddings.ts",
+        "src/commands/generate.ts"
+      ]
+    },
+    "src/embeddings/metadata.ts": {
+      "language": "typescript",
+      "loc": 147,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/core/prompts.ts",
+            "symbols": [
+              "getModuleKey",
+              "getModuleDisplayPath"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/embeddings/chunker.ts",
+            "symbols": [
+              "FileSlice"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/graph/parsers/index.ts",
+            "symbols": [
+              "getLanguage"
+            ],
+            "style": "named"
+          },
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "ContextModule",
+              "DependencyGraph",
+              "EmbeddingChunk",
+              "GraphNode",
+              "ScannedFile"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": []
+      },
+      "importedBy": [
+        "src/embeddings/index.ts"
       ]
     },
     "src/graph/index.ts": {
@@ -800,6 +1023,7 @@
         "external": []
       },
       "importedBy": [
+        "src/commands/embeddings.ts",
         "src/commands/generate.ts",
         "src/commands/graph.ts"
       ]
@@ -834,6 +1058,8 @@
         "external": []
       },
       "importedBy": [
+        "src/embeddings/index.ts",
+        "src/embeddings/metadata.ts",
         "src/graph/index.ts",
         "src/graph/parsers/python.ts",
         "src/graph/parsers/typescript.ts"
@@ -860,7 +1086,7 @@
     },
     "src/graph/parsers/typescript.ts": {
       "language": "typescript",
-      "loc": 225,
+      "loc": 230,
       "imports": {
         "internal": [
           {
@@ -925,9 +1151,16 @@
     },
     "src/index.ts": {
       "language": "typescript",
-      "loc": 40,
+      "loc": 56,
       "imports": {
         "internal": [
+          {
+            "path": "src/commands/embeddings.ts",
+            "symbols": [
+              "embeddings"
+            ],
+            "style": "named"
+          },
           {
             "path": "src/commands/generate.ts",
             "symbols": [
@@ -955,15 +1188,18 @@
               "preset"
             ],
             "style": "named"
+          },
+          {
+            "path": "src/setup.ts",
+            "symbols": [],
+            "style": "side-effect"
           }
         ],
         "external": [
           {
             "package": "commander",
-            "symbols": [
-              "Command"
-            ],
-            "style": "named"
+            "symbols": [],
+            "style": "unknown"
           }
         ]
       },
@@ -1275,14 +1511,26 @@
         "src/presets/index.ts"
       ]
     },
-    "src/types/index.ts": {
+    "src/setup.ts": {
       "language": "typescript",
-      "loc": 255,
+      "loc": 21,
       "imports": {
         "internal": [],
         "external": []
       },
       "importedBy": [
+        "src/index.ts"
+      ]
+    },
+    "src/types/index.ts": {
+      "language": "typescript",
+      "loc": 315,
+      "imports": {
+        "internal": [],
+        "external": []
+      },
+      "importedBy": [
+        "src/commands/embeddings.ts",
         "src/commands/generate.ts",
         "src/commands/preset.ts",
         "src/core/chunker.ts",
@@ -1294,13 +1542,48 @@
         "src/core/parse.ts",
         "src/core/prompts.ts",
         "src/core/scanner.ts",
+        "src/embeddings/chunker.ts",
+        "src/embeddings/index.ts",
+        "src/embeddings/metadata.ts",
         "src/graph/index.ts",
         "src/graph/parsers/index.ts",
         "src/graph/parsers/typescript.ts",
         "src/graph/stats.ts",
         "src/presets/bundle-loader.ts",
         "src/presets/index.ts",
-        "src/presets/shared.ts"
+        "src/presets/shared.ts",
+        "src/ui/reporter.ts"
+      ]
+    },
+    "src/ui/reporter.ts": {
+      "language": "typescript",
+      "loc": 293,
+      "imports": {
+        "internal": [
+          {
+            "path": "src/types/index.ts",
+            "symbols": [
+              "ScannedFile"
+            ],
+            "style": "named"
+          }
+        ],
+        "external": [
+          {
+            "package": "chalk",
+            "symbols": [
+              "chalk"
+            ],
+            "style": "default"
+          }
+        ]
+      },
+      "importedBy": [
+        "src/commands/embeddings.ts",
+        "src/commands/generate.ts",
+        "src/commands/graph.ts",
+        "src/commands/init.ts",
+        "src/commands/preset.ts"
       ]
     },
     "tsup.config.ts": {
@@ -1319,6 +1602,23 @@
         ]
       },
       "importedBy": []
+    },
+    "vitest.config.ts": {
+      "language": "typescript",
+      "loc": 8,
+      "imports": {
+        "internal": [],
+        "external": [
+          {
+            "package": "vitest",
+            "symbols": [
+              "defineConfig"
+            ],
+            "style": "named"
+          }
+        ]
+      },
+      "importedBy": []
     }
   },
   "externalPackages": {
@@ -1326,10 +1626,12 @@
       "src/core/claude-api.ts"
     ],
     "chalk": [
+      "src/commands/embeddings.ts",
       "src/commands/generate.ts",
       "src/commands/graph.ts",
       "src/commands/init.ts",
-      "src/commands/preset.ts"
+      "src/commands/preset.ts",
+      "src/ui/reporter.ts"
     ],
     "child_process": [
       "src/core/claude-code.ts"
@@ -1338,6 +1640,7 @@
       "src/index.ts"
     ],
     "fs": [
+      "src/commands/embeddings.ts",
       "src/commands/generate.ts",
       "src/commands/graph.ts",
       "src/commands/init.ts",
@@ -1346,6 +1649,7 @@
       "src/core/config.ts",
       "src/core/output.ts",
       "src/core/scanner.ts",
+      "src/embeddings/index.ts",
       "src/presets/bundle-loader.ts"
     ],
     "glob": [
@@ -1354,16 +1658,11 @@
     "js-yaml": [
       "src/core/config.ts"
     ],
-    "ora": [
-      "src/commands/generate.ts",
-      "src/commands/graph.ts",
-      "src/commands/init.ts",
-      "src/commands/preset.ts"
-    ],
     "os": [
       "src/core/claude-code.ts"
     ],
     "path": [
+      "src/commands/embeddings.ts",
       "src/commands/generate.ts",
       "src/commands/graph.ts",
       "src/commands/init.ts",
@@ -1372,6 +1671,7 @@
       "src/core/config.ts",
       "src/core/output.ts",
       "src/core/scanner.ts",
+      "src/embeddings/index.ts",
       "src/graph/resolver.ts",
       "src/presets/bundle-loader.ts"
     ],
@@ -1380,6 +1680,9 @@
     ],
     "tsup": [
       "tsup.config.ts"
+    ],
+    "vitest": [
+      "vitest.config.ts"
     ]
   }
 }
